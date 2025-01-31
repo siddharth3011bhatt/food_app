@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./Components/Header";
-import Dishes from "./Components/Dishes";
+import Header from "./Components/Header/Header";
+import Dishes from "./Components/Dishes/Dishes";
 import DisheDetails from "./Components/DishDetails";
 import axios from "axios";
 import DishSuggester from './Components/DishSuggester'
+import { DishProvider } from "./Components/DishProvider";
 
 function App() {
   const [dishes, setDishes] = useState([])
@@ -23,14 +24,16 @@ function App() {
 
   return (
     <>
-      <Router>
-        <Header dishes={dishes} />
-        <Routes>
-          <Route path="/" element={<Dishes dishes={dishes} />}></Route>
-          <Route path="/dishdetails/:dishName" element={<DisheDetails dishes={dishes} />} />
-          <Route path="/suggestions" element={<DishSuggester dishes={dishes} />} />
-        </Routes>
-      </Router>
+      <DishProvider>
+        <Router>
+          <Header />
+          <Routes>
+            <Route path="/" element={<Dishes />}></Route>
+            <Route path="/dishdetails/:dishName" element={<DisheDetails />} />
+            <Route path="/suggestions" element={<DishSuggester />} />
+          </Routes>
+        </Router>
+      </DishProvider>
     </>
   );
 }
