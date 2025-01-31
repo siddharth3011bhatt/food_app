@@ -1,14 +1,38 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDishes } from "./DishProvider";
 
-const DishSuggester = ({ dishes }) => {
+const DishSuggester = () => {
+    const { dishes } = useDishes();
+
     const navigate = useNavigate();
     const [selectedIngre, setSelectedIngre] = useState([])
     const [suggestions, setSuggestions] = useState([])
+    const [uniqueIngredients, setUniqueIngredients] = useState([])
 
-    const handleIngreSelect = (ingredients) => {
-        setSelectedIngre([...selectedIngre, ...ingredients.split(", ").map(ing => ing.trim())]);
+    useEffect(() => {
+        const ingredientSet = new Set();
+        const ingredients = [];
+        dishes.forEach(dish => {
+            dish.ingredients.split(", ").forEach(ing => {
+                const normalized = ing.trim().toLowerCase();
+                if (!ingredientSet.has(normalized)) {
+                    ingredientSet.add(normalized);
+                    ingredients.push(ing.trim());
+                }
+            });
+        });
+        setUniqueIngredients(ingredients)
+    }, [dishes])
+
+    const handleIngreSelect = (ingredient, isChecked) => {
+        const normalized = ingredient.toLowerCase();
+        setSelectedIngre(prev =>
+            isChecked
+                ? [...prev, normalized]
+                : prev.filter(ing => ing !== normalized)
+        );
     }
 
 
@@ -52,14 +76,16 @@ const DishSuggester = ({ dishes }) => {
                 ""
             )}
 
-            <h3>Ingredient List: </h3>
-
-            {dishes.map((dish, index) => (
-                <div
-                    className="dish-ingredients"
-                    key={index}
-                    onClick={() => handleIngreSelect(dish.ingredients)}>
-                    {dish.ingredients}
+            <h3>Select available ingredients: </h3>
+            {uniqueIngredients.length > 0 && uniqueIngredients.map((ingredient) => (
+                <div key={ingredient} className="dish-ingredients">
+                    <input
+                        type="checkbox"
+                        id={ingredient}
+                        checked={selectedIngre.includes(ingredient.toLowerCase())}
+                        onChange={(e) => handleIngreSelect(ingredient, e.target.checked)}
+                    />
+                    <label>{ingredient}</label>
                 </div>
             ))}
         </>
