@@ -19,7 +19,7 @@ const getAllDishes = () => {
 
 const getSuggestions = (selectedIngre) => {
     return dishes.filter((dish) =>
-        dish.ingredients.split(", ").every((ingredient) =>
+        dish.ingredients.toLowerCase().split(", ").every((ingredient) =>
             selectedIngre.includes(ingredient.trim())
         )
     );
